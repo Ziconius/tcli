@@ -1,0 +1,19 @@
+linters:
+  disable-all: true
+  enable:
+    # Defaults
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+
+    # Suggested
+    - whitespace
+    - revive
+    - gosec
+    - godot
+    - nlreturn
+    - perfsprint
+    - prealloc
