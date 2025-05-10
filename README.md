@@ -91,12 +91,3 @@ The following is work that needs completed prior to the tool being in a alpha wo
 - [ ] Rework URL -> Path in schema due to full URL risks.
 - [ ] Add `--no-cache`, forcing redownload of all stories
 
-
-
-
-Flow and considerations
-
-No successful auth - we bail
-
-module api wrapper around the SDK, take AuthConfig{}
-

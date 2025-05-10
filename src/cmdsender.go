@@ -11,12 +11,6 @@ func ExecuteCommand(story StoryConfig, cmd *cobra.Command) error {
 	fmt.Printf("... Sending: %v: %v\n", story.CommandName, story.URL)
 	
 	fmt.Printf("Flags: %#v\n", cmd.Flags())
-	// bb := cmd.Flags()
-	// for _, x := range bb. {
-
-	// }
-
-
 
 	resp, err := sendCommand(story.URL, cmd.ValidArgs)
 	if err != nil {
