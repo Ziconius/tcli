@@ -94,7 +94,7 @@ The following is work that needs completed prior to the tool being in a alpha wo
 - [ ] Implement response parsing for custom output
 - [ ] Track & migrate from custom Tines API -> SDK as functions become avaliable.
 - [x] Add expiration of cache within the cache file
-- [ ] Linting/tests/security auditing
+- [ ] Linting/tests/security checks
 - [ ] Migrate to seperate modules
 - [ ] Mature/extend request schema.
    - [ ] Add required/optional fields for client-side validation.
