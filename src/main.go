@@ -27,7 +27,6 @@ func init() {
 }
 
 func main() {
-
 	opts := &slog.HandlerOptions{
 		Level: slog.LevelInfo,
 	}
@@ -37,13 +36,16 @@ func main() {
 	// Build the root of the application.
 	cli := InitCLI()
 
-	cache, err := LocalConfig()
-	if err != nil {
-		// Failed to load a file
-	}
+	cache, _ := LocalConfig()
+	// if err != nil {
+	// 	// Failed to load a file
+	// }
+
 	ok, err := cache.ValidateState()
 	if err != nil {
-		// Checking cache state has failed.
+		slog.Error("Error validating state", "error", err)
+
+		return
 	}
 	if !ok {
 		// Pull new cache state
@@ -94,6 +96,7 @@ func GetRemoteConfig(api connector.TinesAPI, sc *StoredConfig) error {
 	r, err := regexp.Compile(`^tcli_\d{4}$`)
 	if err != nil {
 		fmt.Printf("Failed to compile Regex...")
+		
 		return err
 	}
 
@@ -135,12 +138,12 @@ type CommandCfg struct {
 }
 
 func ValueToStory(v string, story *StoryConfig) error {
-
 	vv := []byte(v)
 	ccfg := CommandCfg{}
 	err := json.Unmarshal(vv, &ccfg)
 	if err != nil {
 		fmt.Printf("Failed to unmarshal.")
+
 		return err
 	}
 
@@ -148,5 +151,6 @@ func ValueToStory(v string, story *StoryConfig) error {
 	story.Description = ccfg.Description
 	story.URL = ccfg.URL
 	story.Request = ccfg.Request
+
 	return nil
 }

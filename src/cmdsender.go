@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 
@@ -11,10 +12,22 @@ import (
 	"github.com/spf13/pflag"
 )
 
-// TODO: Remove process args into a func.
 func ExecuteCommand(story StoryConfig, cmd *cobra.Command) error {
-	fmt.Printf("... Sending: %v: %v\n", story.CommandName, story.URL)
+	slog.Debug("Sending request to Tines tenant", "Command", story.CommandName, "webhook", story.URL)
 
+	args := convertFlagToArgs(cmd)
+
+	err := sendCommand(story.URL, args)
+	if err != nil {
+		slog.Error("Failed to send command.", "error", err)
+
+		return err
+	}
+
+	return nil
+}
+
+func convertFlagToArgs(cmd *cobra.Command) map[string]string {
 	args := make(map[string]string)
 
 	if cmd.HasFlags() {
@@ -25,67 +38,58 @@ func ExecuteCommand(story StoryConfig, cmd *cobra.Command) error {
 		})
 	}
 
-	resp, err := sendCommand(story.URL, args)
+	return args
+}
+
+func sendCommand(url string, args map[string]string) error {
+	// Http Request
+	resp, err := httpRequest(url, args)
 	if err != nil {
-		fmt.Printf("Failed to run %s\n", cmd.DisplayName())
+		return err
 	}
-	fmt.Printf("Response: %s\n", resp)
+
+	// Response parse
+	err = processResponse(resp)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-
-func sendCommand(url string, args map[string]string) (string, error) {
-	// Args to Body
-	// buildRequestBody(args)
-
-	// Http Request
-	resp, _ := httpRequest(url, args)
-
-	// Response parse
-	processResponse(resp)
-
-	return "", nil
-}
-
-// func buildRequestBody(args []cobra.Completion) ([]byte, error) {
-// 	fmt.Println("Printing args & making body.")
-// 	for i, x := range args {
-// 		fmt.Printf("%d: %v\n", i, x)
-// 	}
-
-// 	return []byte("Testing"), nil
-// }
-
-func httpRequest(url string, body map[string]string) (*http.Response, error) {
+func httpRequest(url string, body map[string]string) ([]byte, error) {
 	bodyBytes, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(bodyBytes))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(bodyBytes))
+	if err != nil {
+		slog.Error("Failed to create a valid request", "error", err)
+
+		return []byte{}, err
+	}
 
 	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("User-Agent", "tCLI-client/0.0")
 
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		panic(err) // TODO: Replace
+		return []byte{}, err
 	}
 
-	defer res.Body.Close()
+	// TODO: Check response code.
+	d, err := io.ReadAll(res.Body)
+	if err != nil {
+		slog.Error("Error in processResponse", "error", err)
+	}
 
-	// TODO: Output response
-	fmt.Printf("Body: %v\n", res.Body)
-
-
-	return res, nil
-
+	return d, nil
 }
 
 // processResponse will output the content of the body. If JSON this should be prettyPrinted.
 // Once the response definition is build into the tCLI schema this will take that object and process the response in accordance.
 // Additionally, we may want to create user created customisation which will layer over the default. i.e. colours etc.
-func processResponse(resp *http.Response) error {
+func processResponse(data []byte) error {
+	fmt.Printf("%v\n", string(data))
 
-
-	fmt.Print()
 	return nil
 }

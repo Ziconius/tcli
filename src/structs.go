@@ -111,7 +111,6 @@ func (sc *StoredConfig) ValidateState() (bool, error) {
 	return true, nil
 }
 
-// TODO:
 func (sc *StoredConfig) ValidConfigCache() bool {
 	if len(sc.Commands) < 1 {
 		slog.Warn("No commands found in current cache.")

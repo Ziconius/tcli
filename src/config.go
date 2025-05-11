@@ -4,8 +4,6 @@ import (
 	"log/slog"
 )
 
-// We should pull config from {USER_HOME}/.tcli/.config ../.auth
-
 func AuthConfig() (Auth, error) {
 	auth := Auth{}
 	err := auth.LoadConfig()
@@ -23,5 +21,6 @@ func LocalConfig() (StoredConfig, error) {
 	if err := cache.LoadConfig();err != nil {
 		return cache, err
 	}
+
 	return cache, nil
 }

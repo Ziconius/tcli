@@ -32,7 +32,6 @@ Currently this module has a workaround as the Tines SDK does not support all of 
 
 // Used to interact with the Tines API for pulling tcli enabled stories.
 func NewTinesAPI(tenant, apiKey string) (TinesAPI, error) {
-
 	tinesAPI := TinesAPI{}
 
 	client := http.Client{
