@@ -68,6 +68,9 @@ func main() {
 	// TODO: Response parser
 }
 
+
+// UpdateCache will take a StoredConfig, and will attempt to update the stuct as well as 
+//	writing the updates to the local cache file.
 func UpdateCache(tinesAPI connector.TinesAPI, cache *StoredConfig) error {
 	if err := GetRemoteConfig(tinesAPI, cache); err != nil {
 		slog.Error("Failed to update config cache", "error", err)
@@ -79,6 +82,7 @@ func UpdateCache(tinesAPI connector.TinesAPI, cache *StoredConfig) error {
 
 		return err
 	}
+	slog.Info("Successfully updated the local cache.")
 
 	return nil
 }
@@ -96,7 +100,7 @@ func GetRemoteConfig(api connector.TinesAPI, sc *StoredConfig) error {
 	r, err := regexp.Compile(`^tcli_\d{4}$`)
 	if err != nil {
 		fmt.Printf("Failed to compile Regex...")
-		
+
 		return err
 	}
 

@@ -16,32 +16,19 @@ func GetAllStoryConfigs(tinesObject connector.TinesAPI) []StoryConfig {
 	}
 
 	stories := []StoryConfig{}
+	// BUG: SDK ListFilter isn't working as expecting and no filtering occuring.
 	for x, err := range tinesObject.SDK.ListStories(context.Background(), lf) {
 		if err != nil {
 			slog.Error("Failed to decode", "error", err)
 		}
+
 		if slices.Contains(x.Tags, "tcli") {
-			s, err := GetStoryConfig(tinesObject, x)
-			if err != nil {
-				continue
-			} // TODO
-			stories = append(stories, s)
+			sc := StoryConfig{
+				StoryID: x.ID,
+			}
+			stories = append(stories, sc)
 		}
 	}
 
 	return stories
-}
-
-func GetStoryConfig(api connector.TinesAPI, story tines.Story) (StoryConfig, error) {
-	// We error if we cannot file the "tcli note"
-	// sdk does not work as notes are not yet integrated.
-	_, err := api.API.GetNotes()
-	// story.
-	if err != nil {
-		return StoryConfig{}, err
-	}
-
-	return StoryConfig{
-		StoryID: story.ID,
-	}, nil
 }
