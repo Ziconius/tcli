@@ -13,7 +13,7 @@ For further information run the `tcli help` command.
 
 # Configuration
 
-Configuring tCLI requires two components, tCLI binary config, and a per-story configuration change by the tenant story owner.
+Configuring tCLI requires two components, tCLI auth config, and a per-story configuration change by the tenant story owner.
 
 Each story config will create a new arguement under the `cmd` section of the tool. i.e.
 
@@ -26,7 +26,7 @@ Simple requests are usually unhelpful, as such you can extend the command with a
 ```sh
 tcli cmd foo --user=bar --ip=192.168.24.156
 ```
-This will send the following JSON payload, to the required webhook.
+This will send the following JSON payload to the required webhook.
 
 ```json
 {
@@ -36,44 +36,53 @@ This will send the following JSON payload, to the required webhook.
 ```
 
 
-## CLI Config
-Setting up tCLI requires each user to generate an API key for their tines account and configure the auth file under `$HOME/.tcli/auth`.
-The auth file will look like:
+## CLI Auth Config
+Setting up tCLI requires the user to generate an API key for their Tines account and create a YAML config auth file under `$HOME/.tcli/auth`.
+
+Below is sample auth file:
 
 ```yaml
 tenant_name: example-tenant-1234
 api_key: <User API key here>
 ```
 
-## Tenant config
+## Story Config
 
-To create a "tCLI enabled" you must implement the follow 3 changes to the story:
+To expose a story to the tCLI tool you need the following setup within your Tines tenant:
  - Tag the story with `tcli`
- - Created schema resources
- - Implement request/response inline with schema
+ - Create a resource object with a valid schema, see [Tines Resources](https://www.tines.com/docs/resources/).
 
-The schema for story configs is below, along with an example:
+### tCLI Schema
+To create a schema you will need to create a resource named `tcli_<story ID>`, i.e. `tcli_1234`. This should map to a matching story with the `tcli` tag.
+
+> If no matching story & resource schema are found the command will not be added to the config cache & will not be accessible to the tool.
+
 
 Schema:
 ```json
 {
-   "foo": "TODO"
+   "cmd": "required",
+   "url": "required",
+   "description": "optional",
+   "request": [
+      "optional"
+   ]
 }
 ```
 
-Example
+Below is an example which takes 2 arguments, `length` and `user`, which would be created within a resource call `tcli_1234` to match the story ID number:
+
 ```json
 {
   "cmd": "foo",
-  "url": "<redacted>",
-  "description": "This is in a resource."
+  "url": "https://example-tenant-1234.tines.com/webhook/bar/baz",
+  "description": "This is an optional resource",
+  "request": [
+    "length",
+    "user"
+  ]
 }
 ```
-
-### Creating tCLI Schema
-To create a schema you will need to create a resource named `tcli_<story ID>`, i.e. `tcli_2561`. This should map to a matching story with the `tcli` tag.
-
-If not matching story/resource schema are found the command will not be added to the config cache & will not be accessible to the tool.
 
 
 # Planned Work
@@ -88,6 +97,8 @@ The following is work that needs completed prior to the tool being in a alpha wo
 - [ ] Linting/tests/security auditing
 - [ ] Migrate to seperate modules
 - [ ] Mature/extend request schema.
+   - [ ] Add required/optional fields for client-side validation.
+   - [ ] Add bool flag support
 - [ ] Review if the `cmd` prefix is *actually* needed.
 - [ ] Rework URL -> Path in schema due to full URL risks.
 - [ ] Add `--no-cache`, forcing redownload of all stories
