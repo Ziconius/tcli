@@ -1,25 +1,24 @@
 # tCLI
 ## Unoffical Tines CLI
 
-tCLI allows users to run their [Tines](tines.com) stories via a CLI. tCLI generates a CLI tool from configuration stored within the Tines tenant, and allows for JSON webhooks to be converted into a tab completable CLI.
+tCLI allows users to run their [Tines](tines.com) stories via a CLI. tCLI generates a CLI tool from configuration stored within the Tines tenant, and allows for JSON webhooks to be interacted with from the users terminal.
 
-tCLI is tenant-cententic CLI,  which means that updates & changes to commands, and their configuration is done on the server, downloaded and locally cached to ensure that the CLI does not need to be rebuilt on change, and provide user-specific functionality.
+tCLI is runtime, tenant-cententic CLI,  which means that updates & changes to commands, and their configuration is managed by Tines tenant, downloaded and locally cached to ensure that the CLI does not need to be rebuilt on change, and provide user-specific functionality.
 
-This approach allows for teams to quick run stories without pages, Slack bots, etc. Additionally it allows the response data to be easily accessible to other popular tools such as `jq`, `awk`, and `find`.
-
-This tool is a PoC, and not production suitable, yet. See the Planned Work section for pre-release changes.
+This approach allows for teams to quickly run stories without pages, Slack bots, etc. Additionally, it allows the response data to be easily accessible to other popular tools such as `jq`, `awk`, and `find`.
 
 For further information run the `tcli help` command.
 
+> This tool is a PoC, and not production suitable, yet. See the Planned Work section for required pre-release changes. Please feel free to raised feature requests and/or bugs.
 
 # Configuration
 
 Configuring tCLI requires two components, tCLI binary config, and a per-story configuration change by the tenant story owner.
 
-Each story config will create a new arguement in the `cmd` section of the tool. i.e.
+Each story config will create a new arguement under the `cmd` section of the tool. i.e.
 
 ```sh
-tcli cmd foo
+tcli cmd <foo>
 ```
 
 Simple requests are usually unhelpful, as such you can extend the command with arguments, which you can define as optional or required in the tenant configuration i.e.
@@ -28,6 +27,7 @@ Simple requests are usually unhelpful, as such you can extend the command with a
 tcli cmd foo --user=bar --ip=192.168.24.156
 ```
 This will send the following JSON payload, to the required webhook.
+
 ```json
 {
    "user": "bar",
@@ -37,11 +37,12 @@ This will send the following JSON payload, to the required webhook.
 
 
 ## CLI Config
-Setting up tCLI requires each user to generate an API for their user and configure the auth file under `$HOME/.tcli/auth`
+Setting up tCLI requires each user to generate an API key for their tines account and configure the auth file under `$HOME/.tcli/auth`.
 The auth file will look like:
+
 ```yaml
-tenantURL: https://example-tenant-1234.tines.com/
-apiKey: <User API key here>
+tenant_name: example-tenant-1234
+api_key: <User API key here>
 ```
 
 ## Tenant config

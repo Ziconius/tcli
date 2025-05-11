@@ -9,7 +9,7 @@ import (
 func InitCLI() *cobra.Command {
 	var rootCmd = &cobra.Command{
 		Use:   "tcli",
-		Short: "tcli  - a server focused CLI builder for Tines.",
+		Short: "tCLI  - A tenant managed CLI tool for Tines.",
 		Args:  cobra.ExactArgs(1),
 		Run:   func(cmd *cobra.Command, args []string) {},
 	}
@@ -32,7 +32,6 @@ func CmdConfig(tApi connector.TinesAPI, cache StoredConfig)*cobra.Command{
 			}
 		},
 	}
-
 
 	return configCmd
 }

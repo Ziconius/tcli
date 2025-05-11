@@ -9,7 +9,7 @@ linters:
     - staticcheck
     - unused
 
-    # Suggested
+    # Additional linters - to be expanded.
     - whitespace
     - revive
     - gosec
