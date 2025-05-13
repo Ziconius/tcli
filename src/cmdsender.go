@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -89,7 +88,14 @@ func httpRequest(url string, body map[string]string) ([]byte, error) {
 // Once the response definition is build into the tCLI schema this will take that object and process the response in accordance.
 // Additionally, we may want to create user created customisation which will layer over the default. i.e. colours etc.
 func processResponse(data []byte) error {
-	fmt.Printf("%v\n", string(data))
+	/*
+		TODO: Implement child logger of type JSON.
+			We will need to expand what this func takes to ensure we have to output opts.
+
+		BUGFIX: Check for existing newline before adding another in. Needs to be done after the above.
+	*/
+
+	slog.Info(string(data))
 
 	return nil
 }

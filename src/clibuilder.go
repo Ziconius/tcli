@@ -58,15 +58,13 @@ func BuildCliParser(sc StoredConfig) *cobra.Command {
 	var tinesCommand = &cobra.Command{
 		Use:     "cmd",
 		Aliases: []string{"command"},
-		Short:   "executes a tines story from the tenant.",
+		Short:   "Used to execute a Tines story from the tenant.",
 		Args:    cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 		},
 	}
 
-	// fmt.Printf("PArty: %#v\n", sc)
 	for _, x := range sc.Commands {
-		// fmt.Printf("Command: %v\n", x.CommandName)
 		g := storySubCommand(x)
 		tinesCommand.AddCommand(g)
 	}

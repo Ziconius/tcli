@@ -2,9 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log/slog"
-	"os"
 	"regexp"
 	"strconv"
 	"time"
@@ -15,6 +13,9 @@ import (
 var tinesAPI connector.TinesAPI
 
 func init() {
+
+	SetOutputLevel(false)
+
 	auth, err := AuthConfig()
 	if err != nil {
 		slog.Warn("Failed to load auth config file", "error", err)
@@ -27,12 +28,6 @@ func init() {
 }
 
 func main() {
-	opts := &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-	}
-	logger := slog.New(slog.NewTextHandler(os.Stdout, opts))
-	slog.SetDefault(logger)
-
 	// Build the root of the application.
 	cli := InitCLI()
 
@@ -40,6 +35,9 @@ func main() {
 	// if err != nil {
 	// 	// Failed to load a file
 	// }
+	if cache.Verbose {
+		SetOutputLevel(true)
+	}
 
 	ok, err := cache.ValidateState()
 	if err != nil {
@@ -62,14 +60,14 @@ func main() {
 	cli.AddCommand(bc)
 	err = cli.Execute()
 	if err != nil {
-		fmt.Printf("Failed to generate CLI arguements, error: %s\n", err)
+		slog.Error("Failed to generate CLI arguements.", "error", err)
 	}
 
 	// TODO: Response parser
 }
 
-
-// UpdateCache will take a StoredConfig, and will attempt to update the stuct as well as 
+// UpdateCache will take a StoredConfig, and will attempt to update the stuct as well as
+//
 //	writing the updates to the local cache file.
 func UpdateCache(tinesAPI connector.TinesAPI, cache *StoredConfig) error {
 	if err := GetRemoteConfig(tinesAPI, cache); err != nil {
@@ -78,7 +76,7 @@ func UpdateCache(tinesAPI connector.TinesAPI, cache *StoredConfig) error {
 	}
 	err := cache.WriteConfig()
 	if err != nil {
-		fmt.Printf("Warning: failed to save configuration file, error: %s\n", err)
+		slog.Warn("Failed to save configuration file", "error", err)
 
 		return err
 	}
@@ -99,7 +97,7 @@ func GetRemoteConfig(api connector.TinesAPI, sc *StoredConfig) error {
 	// Building regex for resource name
 	r, err := regexp.Compile(`^tcli_\d{4}$`)
 	if err != nil {
-		fmt.Printf("Failed to compile Regex...")
+		slog.Error("Failed to compile Regex", "error", err)
 
 		return err
 	}
@@ -121,7 +119,7 @@ func GetRemoteConfig(api connector.TinesAPI, sc *StoredConfig) error {
 				// Build story from z.Value.
 				err := ValueToStory(z.Value, &y)
 				if err != nil {
-					fmt.Printf("Failed to unmarshal story(%v), error: %v\n", y.StoryID, z.Slug)
+					slog.Error("ailed to unmarshal story", "story", y.StoryID, "slug", z.Slug)
 				}
 				final = append(final, y)
 			}
@@ -146,7 +144,7 @@ func ValueToStory(v string, story *StoryConfig) error {
 	ccfg := CommandCfg{}
 	err := json.Unmarshal(vv, &ccfg)
 	if err != nil {
-		fmt.Printf("Failed to unmarshal.")
+		slog.Error("Failed to unmarshal Tines Resource value", "error", err)
 
 		return err
 	}

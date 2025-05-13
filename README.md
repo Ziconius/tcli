@@ -43,7 +43,7 @@ Below is sample auth file:
 
 ```yaml
 tenant_name: example-tenant-1234
-api_key: <User API key here>
+api_key: <User API key>
 ```
 
 ## Story Config
