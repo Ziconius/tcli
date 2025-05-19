@@ -61,17 +61,16 @@ To create a schema you will need to create a resource named `tcli_<story ID>`, i
 Schema:
 ```json
 {
-    "version": 0
-    "cmd": "foo",
-    "webhook_path": "/webhook/bar/baz",
-    "description": "This is an optional resource",
-    "requet": {
-        "method": "",
-        "required": [],
-        "optional": []
+    "cmd": "foo",                      // Required: This is the cli command value 
+    "webhook_path": "/path/bar/baz",   // Required: This is the webhook path we will be targetting
+    "description": "",                 // Optional
+    "request": {                       // Required
+        "method": "",                  // Required: Any valid HTTP verb.
+        "required": [],                // Optional: Required keypairs to be sent to the story
+        "optional": []                 // Optional: Optional keypairs to be send to the story
     },
-    "response": {  
-        "format": "auto|json|text, default: auto"
+    "response": {                      // Optional
+        "format": ""                   // Optional: Define the output format of the story. If left blank we default to auto. Valid values: auto, text, json.
     } 
 }
 ```
@@ -84,7 +83,7 @@ Below is an example which takes 2 arguments, `length` and `user`, which would be
 {
    "cmd": "foo",
    "webhook_path": "/webhook/bar/baz",
-   "description": "This is an optional resource",
+   "description": "This is a very useful description.",
    "request": {
       "method": "post",
       "required": [],
@@ -106,7 +105,7 @@ The following is work that needs completed prior to the tool being in a alpha wo
 - [x] Reworking of the config file URL -> Tenant slug.
 - [ ] Authentication flow rework. 
 - [ ] Implement log & log levels `-v/-vv`
-- [ ] Implement response parsing for custom output
+- [x] Implement response parsing for custom output
 - [ ] Track & migrate from custom Tines API -> SDK as functions become avaliable.
 - [x] Add expiration of cache within the cache file
 - [ ] Linting/tests/security checks
@@ -115,6 +114,6 @@ The following is work that needs completed prior to the tool being in a alpha wo
    - [ ] Add required/optional fields for client-side validation.
    - [ ] Add bool flag support
 - [ ] Review if the `cmd` prefix is *actually* needed.
-- [ ] Rework URL -> Path in schema due to full URL risks.
+- [x] Rework URL -> Path in schema due to full URL risks.
 - [ ] Add `--no-cache`, forcing redownload of all stories
 
