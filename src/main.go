@@ -5,21 +5,24 @@ import (
 	"log/slog"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"tcli/src/connector"
 )
 
+var auth Auth
 var tinesAPI connector.TinesAPI
 
 func init() {
 
 	SetOutputLevel(false)
 
-	auth, err := AuthConfig()
+	authCfg, err := AuthConfig()
 	if err != nil {
 		slog.Warn("Failed to load auth config file", "error", err)
 	}
+	auth = authCfg // BUG: Need to resolve the lack of assignment.
 
 	tinesAPI, err = connector.NewTinesAPI(auth.TenantURL, auth.APIKey)
 	if err != nil {
@@ -32,7 +35,7 @@ func main() {
 	cli := InitCLI()
 
 	cache, _ := LocalConfig()
-	// if err != nil {
+	// if err != nil {auth
 	// 	// Failed to load a file
 	// }
 	if cache.Verbose {
@@ -56,8 +59,9 @@ func main() {
 	cli.AddCommand(CmdConfig(tinesAPI, cache))
 
 	// Remote command builder & parser
-	bc := BuildCliParser(cache)
+	bc := BuildCliParser(auth.TenantURL, cache)
 	cli.AddCommand(bc)
+
 	err = cli.Execute()
 	if err != nil {
 		slog.Error("Failed to generate CLI arguements.", "error", err)
@@ -66,9 +70,7 @@ func main() {
 	// TODO: Response parser
 }
 
-// UpdateCache will take a StoredConfig, and will attempt to update the stuct as well as
-//
-//	writing the updates to the local cache file.
+// UpdateCache will take a StoredConfig, and will attempt to update the stuct as well as writing the updates to the local cache file.
 func UpdateCache(tinesAPI connector.TinesAPI, cache *StoredConfig) error {
 	if err := GetRemoteConfig(tinesAPI, cache); err != nil {
 		slog.Error("Failed to update config cache", "error", err)
@@ -133,10 +135,17 @@ func GetRemoteConfig(api connector.TinesAPI, sc *StoredConfig) error {
 
 // Used to convert from value string to a usable struct.
 type CommandCfg struct {
-	Cmd         string   `json:"cmd"`
-	URL         string   `json:"url"`
-	Description string   `json:"description"`
-	Request     []string `json:"request"`
+	Cmd         string `json:"cmd"`
+	Path        string `json:"webhook_path"`
+	Description string `json:"description"`
+	Request     struct {
+		Method   string   `json:"method"`
+		Required []string `json:"required"`
+		Optional []string `json:"optional"`
+	} `json:"request"`
+	Response struct {
+		Format string `json:"format"`
+	} `json:"response"`
 }
 
 func ValueToStory(v string, story *StoryConfig) error {
@@ -149,10 +158,14 @@ func ValueToStory(v string, story *StoryConfig) error {
 		return err
 	}
 
+	// TODO: Clean this up properly.
 	story.CommandName = ccfg.Cmd
 	story.Description = ccfg.Description
-	story.URL = ccfg.URL
-	story.Request = ccfg.Request
+	story.Path = ccfg.Path
+	story.Request.Method = strings.ToUpper(ccfg.Request.Method) // TODO: Ensure this is a sensible way to handle.
+	story.Request.Required = ccfg.Request.Required
+	story.Request.Optional = ccfg.Request.Optional
+	story.Response.Format = ccfg.Response.Format
 
 	return nil
 }

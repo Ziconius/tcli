@@ -54,11 +54,16 @@ type StoryConfig struct {
 	Description string
 
 	CommandName string // This is the name used in the command i.e. `tcli get-users`, or `tcli analyse -ip=192.168.0.1`.
-	URL         string
+	Path        string // This is the path of the webhook to call.
 	Input       struct{}
-	Request     []string
-	// Raw output for now.
-	// Output string
+	Request     struct {
+		Method   string
+		Required []string
+		Optional []string
+	}
+	Response struct {
+		Format string
+	}
 }
 
 func (sc *StoredConfig) LoadConfig() error {

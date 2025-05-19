@@ -20,14 +20,14 @@ func InitCLI() *cobra.Command {
 	return rootCmd
 }
 
-func CmdConfig(tApi connector.TinesAPI, cache StoredConfig)*cobra.Command{
+func CmdConfig(tApi connector.TinesAPI, cache StoredConfig) *cobra.Command {
 	var configCmd = &cobra.Command{
 		Use:   "config",
 		Short: "manage tCLI config",
 		Args:  cobra.ExactArgs(1),
-		Run:   func(cmd *cobra.Command, args []string) {
+		Run: func(cmd *cobra.Command, args []string) {
 			// TODO: Convert to proper args.
-			if args[0] == "pull"{
+			if args[0] == "pull" {
 				UpdateCache(tApi, &cache)
 			}
 		},
@@ -36,25 +36,25 @@ func CmdConfig(tApi connector.TinesAPI, cache StoredConfig)*cobra.Command{
 	return configCmd
 }
 
-func storySubCommand(x StoryConfig) *cobra.Command {
+func storySubCommand(tenant string, x StoryConfig) *cobra.Command {
 	var tmp = &cobra.Command{
-		Use: x.CommandName,
-		// Aliases: []string{"command"},
+		Use:   x.CommandName,
 		Short: x.Description,
-		// Args:    cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ExecuteCommand(x, cmd)
+			x.ExecuteCommand(tenant, cmd)
 		},
 	}
-	for _, flag := range x.Request {
-		tmp.Flags().String(flag, "", "testing")
+	for _, flag := range x.Request.Required {
+		tmp.Flags().String(flag, "", "Required")
+	}
+	for _, flag := range x.Request.Optional {
+		tmp.Flags().String(flag, "", "Optional")
 	}
 
 	return tmp
 }
 
-func BuildCliParser(sc StoredConfig) *cobra.Command {
-	// Based command
+func BuildCliParser(tenant string, sc StoredConfig) *cobra.Command {
 	var tinesCommand = &cobra.Command{
 		Use:     "cmd",
 		Aliases: []string{"command"},
@@ -65,7 +65,7 @@ func BuildCliParser(sc StoredConfig) *cobra.Command {
 	}
 
 	for _, x := range sc.Commands {
-		g := storySubCommand(x)
+		g := storySubCommand(tenant, x)
 		tinesCommand.AddCommand(g)
 	}
 

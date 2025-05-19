@@ -61,26 +61,41 @@ To create a schema you will need to create a resource named `tcli_<story ID>`, i
 Schema:
 ```json
 {
-   "cmd": "required",
-   "url": "required",
-   "description": "optional",
-   "request": [
-      "optional"
-   ]
+    "version": 0
+    "cmd": "foo",
+    "webhook_path": "/webhook/bar/baz",
+    "description": "This is an optional resource",
+    "requet": {
+        "method": "",
+        "required": [],
+        "optional": []
+    },
+    "response": {  
+        "format": "auto|json|text, default: auto"
+    } 
 }
 ```
+The reponse object is not required, unless you want to specific output format.
+
 
 Below is an example which takes 2 arguments, `length` and `user`, which would be created within a resource call `tcli_1234` to match the story ID number:
 
 ```json
 {
-  "cmd": "foo",
-  "url": "https://example-tenant-1234.tines.com/webhook/bar/baz",
-  "description": "This is an optional resource",
-  "request": [
-    "length",
-    "user"
-  ]
+   "cmd": "foo",
+   "webhook_path": "/webhook/bar/baz",
+   "description": "This is an optional resource",
+   "request": {
+      "method": "post",
+      "required": [],
+      "optional": [
+         "length",
+         "user"
+      ]
+   },
+   "response":{
+      "format":"text"
+   }
 }
 ```
 
